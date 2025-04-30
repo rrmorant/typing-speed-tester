@@ -69,6 +69,102 @@ const SpeedTypingGame = () => {
 			setWPM(wpm);
 		}
 	};
+
+	const initTyping = (event) => {
+		const characters = document.querySelectorAll(".char");
+		let typedChar = event.target.value;
+		if (charIndex < characters.length && timeLeft > 0) {
+			let currentChar = characters[charIndex].innerText;
+			if (currentChar === "_") currentChar = " ";
+			if (!isTyping) {
+				setIsTyping(true);
+			}
+			if (typedChar === currentChar) {
+				setCharIndex(charIndex + 1);
+				if (charIndex + 1 < characters.length)
+					characters[charIndex + 1].classList.add("active");
+				characters[charIndex].classList.remove("active");
+				characters[charIndex].classList.add("correct");
+			} else {
+				setCharIndex(charIndex + 1);
+				setMistakes(mistakes + 1);
+				characters[charIndex].classList.remove("active");
+				if (charIndex + 1 < characters.length)
+					characters[charIndex + 1].classList.add("active");
+				characters[charIndex].classList.add("wrong");
+			}
+
+			if (charIndex === characters.length - 1) setIsTyping(false);
+
+			let wpm = Math.round(
+				((charIndex - mistakes) / 5 / (maxTime - timeLeft)) * 60
+			);
+			wpm = wpm < 0 || !wpm || wpm === Infinity ? 0 : wpm;
+			setWPM(wpm);
+			let cpm = (charIndex - mistakes) * (60 / (maxTime - timeLeft));
+			cpm = cpm < 0 || !cpm || cpm === Infinity ? 0 : cpm;
+			setCPM(parseInt(cpm, 10));
+		} else {
+			setIsTyping(false);
+		}
+	};
+
+	const resetGame = () => {
+		setIsTyping(false);
+		setTimeLeft(maxTime);
+		setCharIndex(0);
+		setMistakes(0);
+		setTypingText("");
+		setCPM(0);
+		setWPM(0);
+		const characters = document.querySelectorAll(".char");
+		characters.forEach((span) => {
+			span.classList.remove("correct");
+			span.classList.remove("wrong");
+			span.classList.remove("active");
+		});
+		characters[0].classList.add("active");
+		loadParagraph();
+	};
+
+	useEffect(() => {
+		loadParagraph();
+	}, []);
+
+	useEffect(() => {
+		let interval;
+		if (isTyping && timeLeft > 0) {
+			interval = setInterval(() => {
+				setTimeLeft(timeLeft - 1);
+				let cpm = (charIndex - mistakes) * (60 / (maxTime - timeLeft));
+				cpm = cpm < 0 || !cpm || cpm === Infinity ? 0 : cpm;
+				setCPM(parseInt(cpm, 10));
+				let wpm = Math.round(
+					((charIndex - mistakes) / 5 / (maxTime - timeLeft)) * 60
+				);
+				wpm = wpm < 0 || !wpm || wpm === Infinity ? 0 : wpm;
+				setWPM(wpm);
+			}, 1000);
+		} else if (timeLeft === 0) {
+			clearInterval(interval);
+			setIsTyping(false);
+		}
+		return () => {
+			clearInterval(interval);
+		};
+	}, [isTyping, timeLeft]);
+
+	return (
+		<div className="container">
+			<input
+				type="text"
+				className="input-field"
+				value={inpFieldValue}
+				onChange={initTyping}
+				onKeyDown={handleKeyDown}
+			/>
+		</div>
+	);
 };
 
 export default SpeedTypingGame;
