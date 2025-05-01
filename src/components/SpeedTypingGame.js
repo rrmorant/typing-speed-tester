@@ -163,6 +163,17 @@ const SpeedTypingGame = () => {
 				onChange={initTyping}
 				onKeyDown={handleKeyDown}
 			/>
+			<TypingArea
+				typingText={typingText}
+				inpFieldValue={inpFieldValue}
+				timeLeft={timeLeft}
+				mistakes={mistakes}
+				WPM={WPM}
+				CMP={CPM}
+				initTyping={initTyping}
+				handleKeyDown={handleKeyDown}
+				resetGame={resetGame}
+			/>
 		</div>
 	);
 };
